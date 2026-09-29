@@ -26,6 +26,7 @@
 .cfg h1, .cfg h2 { margin: 0; letter-spacing: -.03em; line-height: 1.05; font-weight: 600; }
 .cfg p { margin: 0; }
 .cfg :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.cfg img { max-width: 100%; height: auto; }
 .cfg .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- layout ---------- */
