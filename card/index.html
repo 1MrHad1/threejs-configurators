@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%23131519%27/%3E%3Cpath d=%27M50 20 76 35v30L50 80 24 65V35z%27 fill=%27none%27 stroke=%27%232dd4bf%27 stroke-width=%277%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E" />
+    <title>NFC Card Configurator · Three.js</title>
+    <meta name="description" content="Design an NFC business card in 3D: PVC, metal or wood, live engraving, pack pricing and a Shopify cart integration. Built with Three.js." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="/src/shared/page.css" />
+  </head>
+  <body class="page">
+    <header class="topbar">
+      <a class="back" href="../">← Configurators</a>
+      <span class="crumb">NFC card</span>
+      <a class="gh" href="https://github.com/1MrHad1/threejs-configurators" target="_blank" rel="noopener">Source ↗</a>
+    </header>
+
+    <div class="cfg">
+    <main class="layout">
+      <section class="stage" id="stage" aria-label="3D preview of your card">
+        <div class="loader" aria-hidden="true"><span></span></div>
+        <div class="views" role="group" aria-label="Camera views">
+          <button type="button" data-view="front" aria-pressed="true">Front</button>
+          <button type="button" data-view="back" aria-pressed="false">Back</button>
+          <button type="button" data-view="angle" aria-pressed="false">Angle</button>
+        </div>
+        <p class="hint">Drag to rotate · scroll or pinch to zoom</p>
+      </section>
+
+      <aside class="panel">
+        <p class="eyebrow">NFC business card</p>
+        <h1>Design your card</h1>
+        <p class="lede">Choose a material and finish, add your details, and see it engraved or printed in real time.</p>
+
+        <div id="options"></div>
+
+        <form id="personalise" autocomplete="off" onsubmit="return false">
+          <fieldset class="group">
+          <legend><span>Personalise</span></legend>
+          <label class="field"><span>Name</span><input name="name" maxlength="40" /></label>
+          <label class="field"><span>Title</span><input name="title" maxlength="48" /></label>
+          <label class="field"><span>Company</span><input name="company" maxlength="32" /></label>
+          <div class="field">
+            <span>Layout</span>
+            <div class="seg" role="radiogroup" aria-label="Layout">
+              <label><input type="radio" name="layout" value="left" /><span>Left</span></label>
+              <label><input type="radio" name="layout" value="center" /><span>Centred</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <span>Logo <small>optional, engraved or printed in one colour</small></span>
+            <div class="upload">
+              <input type="file" name="logo" accept="image/png,image/svg+xml,image/jpeg,image/webp" />
+              <button type="button" id="logo-clear" class="link" hidden>Remove logo</button>
+            </div>
+          </div>
+          </fieldset>
+        </form>
+
+        <div id="packs"></div>
+
+        <div class="buy">
+          <div>
+            <p class="price" id="price">—</p>
+            <p class="per" id="per"></p>
+          </div>
+          <div class="buy-actions">
+            <button type="button" class="btn" id="add-to-cart">Add to cart</button>
+            <button type="button" class="btn btn-ghost" id="save-design">Save design</button>
+          </div>
+          <p class="status" id="cart-status" role="status" aria-live="polite"></p>
+        </div>
+        <p class="fine">Personal project. Pricing, SKUs and variant IDs mirror the live Rizely NFC range on Shopify.</p>
+      </aside>
+    </main>
+
+    <dialog id="cart-dialog" class="modal" aria-labelledby="cart-title">
+      <div class="modal-card">
+        <button type="button" class="modal-x" data-close aria-label="Close">✕</button>
+        <p class="eyebrow">Demo mode</p>
+        <h2 id="cart-title">This is what goes to Shopify</h2>
+        <p>Inside the Shopify theme, the configurator posts this to the storefront Cart API. The variant sets the price, and the properties carry the design onto the order.</p>
+        <img alt="Snapshot of your configured card" />
+        <pre><code></code></pre>
+      </div>
+    </dialog>
+
+    </div>
+
+    <script type="module" src="/src/card/main.ts"></script>
+  </body>
+</html>

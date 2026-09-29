@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%23131519%27/%3E%3Cpath d=%27M50 20 76 35v30L50 80 24 65V35z%27 fill=%27none%27 stroke=%27%232dd4bf%27 stroke-width=%277%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E" />
+    <title>Three.js Product Configurators · Haseeb Ahmed Danish</title>
+    <meta name="description" content="Two 3D product configurators built with Three.js: an NFC business card and a lounge chair, with material, part, finish and size switching and Shopify cart integration." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" />
+  </head>
+  <body class="page">
+    <header class="topbar">
+      <a class="back" href="https://portfolio-had.netlify.app/">← Portfolio</a>
+      <span class="crumb">Three.js lab</span>
+      <a class="gh" href="https://github.com/1MrHad1/threejs-configurators" target="_blank" rel="noopener">Source ↗</a>
+    </header>
+    <main class="home">
+      <p class="eyebrow">Personal projects · Three.js</p>
+      <h1>3D product configurators for e-commerce</h1>
+      <p class="lede">
+        Two configurators I built to show production-style 3D commerce work: real-time colour, material,
+        part, finish and size switching; an optimised GLB pipeline; hotspots and animated camera views;
+        and add-to-cart through the Shopify Cart API. By Haseeb Ahmed Danish, senior full-stack developer.
+      </p>
+
+      <div class="tiles">
+        <a class="tile" href="card/">
+          <img src="/thumbs/card.jpg" alt="Black steel NFC card with engraved name in the configurator" width="1200" height="750" />
+          <div>
+            <h2>NFC business card</h2>
+            <p>PVC, metal or wood. Live text and logo, printed or laser-engraved with real surface depth, front/back flip, and pack pricing mirroring a live Shopify catalogue.</p>
+            <ul><li>Canvas textures</li><li>Bump engraving</li><li>PBR materials</li><li>Shopify variants</li></ul>
+          </div>
+        </a>
+        <a class="tile" href="chair/">
+          <img src="/thumbs/chair.jpg" alt="Lounge chair in navy velvet with brass hairpin legs in the configurator" width="1200" height="750" />
+          <div>
+            <h2>Lounge chair</h2>
+            <p>Swap legs (tapered, hairpin, swivel), arms and pillow; bouclé, velvet or leather; wood and metal finishes; three sizes with live dimensions.</p>
+            <ul><li>GLB + meshopt</li><li>Part variants</li><li>Hotspots</li><li>Size morphing</li></ul>
+          </div>
+        </a>
+      </div>
+
+      <div class="home-notes">
+        <div>
+          <h3>Fast by design</h3>
+          <p>Renders only when something changes, so an idle page uses no GPU. The chair is 8 draw calls, and its model is 72 KB after meshopt compression (747 KB raw).</p>
+        </div>
+        <div>
+          <h3>Data-driven models</h3>
+          <p>Parts, variants, material slots and hotspots come from glTF extras, so a re-exported model works without code changes.</p>
+        </div>
+        <div>
+          <h3>Shopify-ready</h3>
+          <p>Each configuration maps to a variant plus line-item properties, posted to <code>/cart/add.js</code>. A Liquid section mounts it in any theme.</p>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/src/home.ts"></script>
+  </body>
+</html>

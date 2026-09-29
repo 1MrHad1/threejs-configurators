@@ -1,0 +1,105 @@
+{%- comment -%}
+  NFC card configurator section.
+
+  1. `npm run build:theme` → upload shopify/assets/nfc-card-configurator.js and .css to the theme's assets.
+  2. Add this file to the theme's sections/ folder and add the section to the NFC card product template.
+  3. Give each product variant the SKU used in src/card/catalogue.ts (e.g. CP-NFC-MTL-10). The configurator
+     looks variant ids up by SKU from the product JSON below, so no ids are hard-coded in JavaScript.
+
+  Add to cart posts to /cart/add.js with the variant and the design as line-item properties.
+  Use one configurator section per page (it uses fixed element ids).
+{%- endcomment -%}
+
+{{ 'nfc-card-configurator.css' | asset_url | stylesheet_tag }}
+
+<div class="cfg cfg--embedded" id="nfc-configurator-{{ section.id }}">
+<div class="layout">
+  <section class="stage" id="stage" aria-label="3D preview of your card">
+    <div class="loader" aria-hidden="true"><span></span></div>
+    <div class="views" role="group" aria-label="Camera views">
+      <button type="button" data-view="front" aria-pressed="true">Front</button>
+      <button type="button" data-view="back" aria-pressed="false">Back</button>
+      <button type="button" data-view="angle" aria-pressed="false">Angle</button>
+    </div>
+    <p class="hint">Drag to rotate · scroll or pinch to zoom</p>
+  </section>
+
+  <aside class="panel">
+    <p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+    <h2 class="h1">{{ section.settings.heading | escape }}</h2>
+    <p class="lede">Choose a material and finish, add your details, and see it engraved or printed in real time.</p>
+
+    <div id="options"></div>
+
+    <form id="personalise" autocomplete="off" onsubmit="return false">
+      <fieldset class="group">
+      <legend><span>Personalise</span></legend>
+      <label class="field"><span>Name</span><input name="name" maxlength="40" /></label>
+      <label class="field"><span>Title</span><input name="title" maxlength="48" /></label>
+      <label class="field"><span>Company</span><input name="company" maxlength="32" /></label>
+      <div class="field">
+        <span>Layout</span>
+        <div class="seg" role="radiogroup" aria-label="Layout">
+          <label><input type="radio" name="layout" value="left" /><span>Left</span></label>
+          <label><input type="radio" name="layout" value="center" /><span>Centred</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span>Logo <small>optional, engraved or printed in one colour</small></span>
+        <div class="upload">
+          <input type="file" name="logo" accept="image/png,image/svg+xml,image/jpeg,image/webp" />
+          <button type="button" id="logo-clear" class="link" hidden>Remove logo</button>
+        </div>
+      </div>
+      </fieldset>
+    </form>
+
+    <div id="packs"></div>
+
+    <div class="buy">
+      <div>
+        <p class="price" id="price">—</p>
+        <p class="per" id="per"></p>
+      </div>
+      <div class="buy-actions">
+        <button type="button" class="btn" id="add-to-cart">Add to cart</button>
+        <button type="button" class="btn btn-ghost" id="save-design">Save design</button>
+      </div>
+      <p class="status" id="cart-status" role="status" aria-live="polite"></p>
+    </div>
+    <p class="fine">{{ section.settings.fine_print | escape }}</p>
+  </aside>
+</div>
+
+<dialog id="cart-dialog" class="modal" aria-labelledby="cart-title">
+  <div class="modal-card">
+    <button type="button" class="modal-x" data-close aria-label="Close">✕</button>
+    <p class="eyebrow">Demo mode</p>
+    <h2 id="cart-title">This is what goes to Shopify</h2>
+    <p>Inside the Shopify theme, the configurator posts this to the storefront Cart API. The variant sets the price, and the properties carry the design onto the order.</p>
+    <img alt="Snapshot of your configured card" />
+    <pre><code></code></pre>
+  </div>
+</dialog>
+
+</div>
+
+<script>
+  window.__CONFIGURATOR__ = { variants: {{ product.variants | json }} };
+</script>
+<script type="module" src="{{ 'nfc-card-configurator.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "NFC card configurator",
+  "tag": "section",
+  "class": "section-nfc-configurator",
+  "templates": ["product"],
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "NFC business card" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Design your card" },
+    { "type": "text", "id": "fine_print", "label": "Fine print", "default": "Setup instructions are sent on WhatsApp after purchase." }
+  ],
+  "presets": [{ "name": "NFC card configurator" }]
+}
+{% endschema %}

@@ -1,0 +1,131 @@
+/* Configurator component styles. Everything is scoped under .cfg (tokens included) so the
+   configurator can be mounted inside a Shopify theme without leaking styles either way. */
+.cfg, .page {
+  --bg: #f1f0ec; --stage-a: #faf9f6; --stage-b: #dfddd6;
+  --panel: #ffffff; --panel-2: #f5f4f0; --line: rgba(20, 22, 26, .1); --line-2: rgba(20, 22, 26, .2);
+  --tx: #131519; --tx2: #4a5059; --tx3: #7a8089;
+  --acc: #0f766e; --acc-2: #0d9488; --acc-tint: rgba(13, 148, 136, .1); --acc-line: rgba(13, 148, 136, .45);
+  --hot: #c2410c;
+  --sans: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  .cfg, .page {
+    --bg: #0b0c0e; --stage-a: #1b1e22; --stage-b: #0b0c0e;
+    --panel: #121418; --panel-2: #1a1d22; --line: rgba(255, 255, 255, .08); --line-2: rgba(255, 255, 255, .18);
+    --tx: #eceef1; --tx2: #a6acb6; --tx3: #6c727c;
+    --acc: #2dd4bf; --acc-2: #14b8a6; --acc-tint: rgba(45, 212, 191, .1); --acc-line: rgba(45, 212, 191, .45);
+    --hot: #f5a524;
+    color-scheme: dark;
+  } 
+}
+
+.cfg { color: var(--tx); font-family: var(--sans); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.cfg *, .cfg *::before, .cfg *::after { box-sizing: border-box; }
+.cfg h1, .cfg h2 { margin: 0; letter-spacing: -.03em; line-height: 1.05; font-weight: 600; }
+.cfg p { margin: 0; }
+.cfg :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.cfg .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- layout ---------- */
+/* Inside a theme there is no top bar: give the configurator a fixed, viewport-aware height */
+.cfg.cfg--embedded .layout { height: min(760px, 86vh); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.cfg .layout { display: grid; grid-template-columns: minmax(0, 1fr) 420px; height: calc(100dvh - 56px); }
+.cfg .stage { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 50% 35%, var(--stage-a), var(--stage-b)); touch-action: none; }
+.cfg .stage canvas { display: block; width: 100%; height: 100%; outline: none; cursor: grab; }
+.cfg .stage canvas:active { cursor: grabbing; }
+.cfg .panel { overflow-y: auto; padding: 28px 28px 40px; background: var(--panel); border-left: 1px solid var(--line); }
+@media (max-width: 900px) { .cfg .layout { grid-template-columns: 1fr; height: auto; }  .cfg .stage { height: 58svh; position: sticky; top: 0; z-index: 2; }  .cfg .panel { border-left: 0; border-top: 1px solid var(--line); padding: 22px 18px 40px; } 
+}
+
+.cfg .loader { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; transition: opacity .5s; }
+.cfg .loader span { width: 160px; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; position: relative; }
+.cfg .loader span::after { content: ''; position: absolute; inset: 0; width: var(--progress, 30%); background: var(--acc); transition: width .2s; }
+.cfg .stage.is-ready .loader { opacity: 0; }
+.cfg .loader:not([data-progress])  span::after { animation: indeterminate 1.1s ease-in-out infinite; }
+@keyframes indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(320%); } }
+
+.cfg .views { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; gap: 4px; padding: 4px; border-radius: 99px; background: color-mix(in srgb, var(--panel) 85%, transparent); border: 1px solid var(--line); backdrop-filter: blur(10px); z-index: 3; }
+.cfg .views button { white-space: nowrap; font: 500 13px var(--sans); color: var(--tx2); background: transparent; border: 0; border-radius: 99px; padding: 7px 14px; cursor: pointer; }
+.cfg .views button[aria-pressed='true'] { background: var(--tx); color: var(--panel); }
+.cfg .hint { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 11.5px; color: var(--tx3); pointer-events: none; white-space: nowrap; }
+@media (max-width: 900px) { .cfg .hint { display: none; }  }
+
+/* ---------- hotspots ---------- */
+.cfg .hotspots { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.cfg .hotspot { position: absolute; left: 0; top: 0; pointer-events: auto; display: flex; align-items: center; gap: 8px; padding: 0; background: none; border: 0; cursor: pointer; transition: opacity .25s; margin: -11px 0 0 -11px; }
+.cfg .hotspot.is-hidden { opacity: 0; pointer-events: none; }
+.cfg .hotspot-dot { width: 22px; height: 22px; border-radius: 99px; background: var(--acc); border: 3px solid #fff; box-shadow: 0 0 0 0 var(--acc-line), 0 4px 12px rgba(0,0,0,.25); animation: pulse 2s infinite; flex: none; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--acc-line), 0 4px 12px rgba(0,0,0,.25); } 70%, 100% { box-shadow: 0 0 0 14px transparent, 0 4px 12px rgba(0,0,0,.25); } }
+.cfg .hotspot-label { max-width: 0; overflow: hidden; white-space: nowrap; font: 500 12.5px var(--sans); color: var(--tx); background: var(--panel); border: 1px solid var(--line); border-radius: 99px; padding: 5px 0; opacity: 0; transition: max-width .35s, opacity .25s, padding .35s; }
+.cfg .hotspot:hover .hotspot-label, .cfg .hotspot:focus-visible .hotspot-label { max-width: 340px; padding: 5px 12px; opacity: 1; }
+
+/* ---------- panel content ---------- */
+.cfg .eyebrow, .page .eyebrow { font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--acc); }
+.cfg .panel h1, .cfg .panel .h1 { margin-top: 8px; font-size: 30px; }
+.cfg .lede { margin-top: 10px; color: var(--tx2); }
+
+.cfg .group { border: 0; margin: 26px 0 0; padding: 0; min-width: 0; }
+.cfg .group[hidden] { display: none; }
+.cfg .group legend { display: flex; justify-content: space-between; width: 100%; padding: 0; margin-bottom: 10px; font-weight: 600; font-size: 14px; }
+.cfg .group legend em { font-style: normal; font-weight: 400; color: var(--tx3); font-size: 13px; }
+.cfg .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.cfg .choice { position: relative; cursor: pointer; }
+.cfg .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.cfg .swatch { display: block; width: 40px; height: 40px; border-radius: 99px; border: 1px solid var(--line-2); box-shadow: inset 0 0 0 3px var(--panel); transition: box-shadow .2s, transform .2s; }
+.cfg .choice:hover .swatch { transform: scale(1.06); }
+.cfg .choice input:checked + .swatch { box-shadow: inset 0 0 0 3px var(--panel), 0 0 0 2px var(--acc); }
+.cfg .choice input:focus-visible + .swatch, .cfg .choice input:focus-visible + .chip { outline: 2px solid var(--acc); outline-offset: 2px; }
+.cfg .chip { display: flex; flex-direction: column; gap: 1px; padding: 9px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--panel); font-weight: 500; font-size: 14px; transition: border-color .2s, background .2s; }
+.cfg .chip small { font-weight: 400; font-size: 11.5px; color: var(--tx3); font-family: var(--mono); }
+.cfg .choice:hover .chip { border-color: var(--acc-line); }
+.cfg .choice input:checked + .chip { border-color: var(--acc); background: var(--acc-tint); }
+.cfg .choice input:disabled + .chip { opacity: .4; cursor: not-allowed; }
+
+.cfg .field { display: grid; gap: 6px; margin-top: 12px; }
+.cfg .field > span { font-size: 13px; color: var(--tx2); }
+.cfg .field small { color: var(--tx3); font-size: 12px; margin-left: 6px; }
+.cfg .field input:not([type=radio]):not([type=file]) { font: inherit; color: var(--tx); background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px; }
+.cfg .field input:focus { outline: none; border-color: var(--acc); box-shadow: 0 0 0 3px var(--acc-tint); }
+.cfg .seg { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--line-2); border-radius: 10px; width: fit-content; }
+.cfg .seg label { position: relative; cursor: pointer; }
+.cfg .seg input { position: absolute; opacity: 0; }
+.cfg .seg span { display: block; padding: 6px 14px; border-radius: 8px; font-size: 13.5px; color: var(--tx2); }
+.cfg .seg input:checked + span { background: var(--tx); color: var(--panel); }
+.cfg .seg input:focus-visible + span { outline: 2px solid var(--acc); }
+.cfg .upload { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--tx2); }
+.cfg .link { background: none; border: 0; color: var(--acc); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+
+.cfg .buy { position: sticky; bottom: -40px; margin: 28px -28px 0; padding: 18px 28px 22px; background: var(--panel); border-top: 1px solid var(--line); display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; align-items: center; }
+@media (max-width: 900px) { .cfg .buy { margin: 28px -18px 0; padding: 16px 18px; bottom: 0; }  }
+.cfg .price { font-size: 26px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.cfg .per { font-family: var(--mono); font-size: 11.5px; color: var(--tx3); }
+.cfg .buy-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.cfg .status { grid-column: 1 / -1; font-size: 13px; color: var(--acc); min-height: 0; }
+.cfg .status:empty { display: none; }
+.cfg .btn { font: 600 14.5px var(--sans); padding: 12px 20px; border-radius: 99px; border: 1px solid var(--tx); background: var(--tx); color: var(--panel); cursor: pointer; transition: transform .15s, opacity .15s; white-space: nowrap; }
+.cfg .btn:hover { transform: translateY(-1px); }
+.cfg .btn:disabled { opacity: .6; cursor: progress; }
+.cfg .btn-ghost { background: transparent; color: var(--tx); border-color: var(--line-2); }
+.cfg .fine { margin-top: 18px; font-size: 12px; color: var(--tx3); }
+
+/* ---------- cart dialog ---------- */
+.cfg .modal { width: min(620px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 1px solid var(--line-2); border-radius: 20px; background: var(--panel); color: var(--tx); overflow: auto; }
+.cfg .modal::backdrop { background: rgba(10, 12, 14, .45); backdrop-filter: blur(4px); }
+.cfg .modal-card { position: relative; padding: 26px; display: grid; gap: 12px; }
+.cfg .modal-card h2 { font-size: 24px; padding-right: 36px; }
+.cfg .modal-card > p:not(.eyebrow) { color: var(--tx2); }
+.cfg .modal-card img { width: 100%; max-height: 220px; object-fit: contain; border-radius: 12px; background: radial-gradient(var(--stage-a), var(--stage-b)); }
+.cfg .modal-card pre { margin: 0; padding: 14px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); font: 12.5px/1.5 var(--mono); overflow: auto; max-height: 280px; }
+.cfg .modal-x { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 99px; border: 1px solid var(--line-2); background: transparent; color: var(--tx2); cursor: pointer; }
+
+
+/* ---------- extras ---------- */
+.cfg .group.is-flash { animation: flash 1.2s ease; border-radius: 12px; }
+@keyframes flash { 0%, 100% { box-shadow: none; } 20% { box-shadow: 0 0 0 8px var(--acc-tint); background: var(--acc-tint); } }
+.cfg .load-error { font-size: 14px; color: var(--hot); background: var(--panel); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); }
+.cfg .debug { position: absolute; top: 12px; left: 12px; margin: 0; padding: 8px 10px; font: 11px/1.5 var(--mono); color: var(--tx2); background: color-mix(in srgb, var(--panel) 85%, transparent); border: 1px solid var(--line); border-radius: 8px; z-index: 4; }
+.cfg .fine code { font-family: var(--mono); font-size: 11.5px; }
+
+@media (prefers-reduced-motion: reduce) { .cfg *, .cfg *::before, .cfg *::after { animation: none !important; transition: none !important; }  }
