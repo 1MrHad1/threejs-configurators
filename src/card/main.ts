@@ -5,6 +5,7 @@ import { mountCart } from '../shared/cart-ui';
 import { resolveVariantId } from '../shared/shopify';
 import { MATERIALS, material, pack, surface, swatchCss, tone } from './catalogue';
 import { NfcCard, type CardDesign } from './card';
+import { buildPrintableCard, encodeObj, encodeStl } from './printable';
 
 const VIEWS: Record<string, CameraView> = {
   front: { position: [0, 0.3, 17.5], target: [0, 0, 0] },
@@ -166,6 +167,7 @@ function update() {
   const p = pack(d.material, Number(state.qty));
   priceEl.textContent = inr(p.price);
   perEl.textContent = p.qty > 1 ? `${p.qty} cards · ${inr(Math.round(p.price / p.qty))} each` : '1 card';
+  refreshPrintNote();
   writeState(state);
   viewer.invalidate();
 }
@@ -194,6 +196,68 @@ mountCart({
   },
   filename: () => `nfc-card-${state.m}-${state.t}.png`,
 });
+
+// ---------- 3D print export ----------
+// The engraving on screen is a bump map, so a naive export would be a blank slab.
+// buildPrintableCard rebuilds the card as a closed mesh and cuts the same mask into
+// it as real geometry, which is what a slicer needs.
+const printNote = document.getElementById('print-note')!;
+const printStatus = document.getElementById('print-status')!;
+
+const SCENE_UNITS_TO_MM = 10; // the card is modelled at 8.56 x 5.4 units = 85.6 x 54 mm
+const ENGRAVE_DEPTH = 0.025; // 0.25 mm, a realistic laser depth
+const CELL = 0.03; // 0.3 mm grid: fine enough for the type, small enough to download
+
+function exportMesh(format: 'stl' | 'obj') {
+  const d = design();
+  card.apply(d); // make sure the masks match what is on screen right now
+  const input = card.printableInput();
+  printStatus.textContent = 'Building mesh…';
+
+  // Let the status paint before the synchronous build blocks the thread.
+  requestAnimationFrame(() => {
+    const started = performance.now();
+    const mesh = buildPrintableCard({
+      ...input,
+      engraveDepth: ENGRAVE_DEPTH,
+      cell: CELL,
+      scale: SCENE_UNITS_TO_MM,
+    });
+    const name = `nfc-card-${state.m}-${state.t}`;
+    const blob =
+      format === 'stl'
+        ? new Blob([encodeStl(mesh, name)], { type: 'model/stl' })
+        : new Blob([encodeObj(mesh, name)], { type: 'model/obj' });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${name}.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    const mb = (blob.size / 1_048_576).toFixed(1);
+    const ms = Math.round(performance.now() - started);
+    const mm = (v: number) => Number(v.toFixed(2));
+    // Where the two faces are engraved in the same place the card is thinnest; say so,
+    // because that is what fails on a printer rather than in the slicer.
+    const thin = mesh.minWall < 0.8 ? ' ⚠ thin' : '';
+    printStatus.textContent =
+      `${format.toUpperCase()} · ${mesh.triangles.toLocaleString()} triangles · ${mb} MB · ` +
+      `${mm(mesh.size.x)} × ${mm(mesh.size.y)} × ${mm(mesh.size.z)} mm · ` +
+      `thinnest material ${mesh.minWall.toFixed(2)} mm${thin} · built in ${ms} ms`;
+  });
+}
+
+document.getElementById('export-stl')!.addEventListener('click', () => exportMesh('stl'));
+document.getElementById('export-obj')!.addEventListener('click', () => exportMesh('obj'));
+
+function refreshPrintNote() {
+  printNote.textContent =
+    current().mode === 'engrave'
+      ? 'Your name, title, company and logo are cut into the mesh as real recesses, 0.25 mm deep.'
+      : 'PVC is printed rather than engraved, so the exported mesh is a plain slab. Pick metal or wood to cut real geometry.';
+}
 
 // ---------- boot ----------
 refreshGroups();

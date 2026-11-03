@@ -301,6 +301,22 @@ export class NfcCard {
     });
   }
 
+  /**
+   * What the printable exporter needs: the slab it cuts into, and the engraving masks.
+   * These are the same canvases that drive the bump map on screen, so the exported mesh
+   * and the preview can never disagree about what is cut.
+   */
+  printableInput() {
+    return {
+      width: CARD_W,
+      height: CARD_H,
+      radius: RADIUS,
+      thickness: this.thickness,
+      front: this.faces.front.mask,
+      back: this.faces.back.mask,
+    };
+  }
+
   /** World-space position of the chip (for the hotspot). */
   chipWorld(target = new Vector3()) {
     return target.set(-this.chipLocal.x, this.chipLocal.y, -this.thickness / 2 - 0.02).applyMatrix4(this.group.matrixWorld);
